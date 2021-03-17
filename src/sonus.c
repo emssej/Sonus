@@ -27,7 +27,6 @@ void
 Callback_dragstart (CallbackArgs *args)
 {
   if (args->event->type == SDL_MOUSEBUTTONDOWN &&
-		args->event->button.state == SDL_PRESSED &&
 		args->event->button.button == SDL_BUTTON_MIDDLE)
 	 {
 		args->state->dragging = 1;
@@ -49,8 +48,7 @@ Callback_drag (CallbackArgs *args)
 void
 Callback_dragend (CallbackArgs *args)
 {
-  if (args->event->type == SDL_MOUSEBUTTONDOWN &&
-		args->event->button.state == SDL_RELEASED &&
+  if (args->event->type == SDL_MOUSEBUTTONUP &&
 		args->event->button.button == SDL_BUTTON_MIDDLE)
 	 {
 		args->state->dragging = 0;
@@ -69,15 +67,10 @@ main ()
   CallbackArgs args = { 0 };
 
   CallbackManager_add (&cb_mgr, Callback_quit);
-  INFO ("%zu", cb_mgr.callbacks_size);
   CallbackManager_add (&cb_mgr, Callback_resize);
-  INFO ("%zu", cb_mgr.callbacks_size);
   CallbackManager_add (&cb_mgr, Callback_dragstart);
-  INFO ("%zu", cb_mgr.callbacks_size);
   CallbackManager_add (&cb_mgr, Callback_drag);
-  INFO ("%zu", cb_mgr.callbacks_size);
   CallbackManager_add (&cb_mgr, Callback_dragend);
-  INFO ("%zu", cb_mgr.callbacks_size);
 
   GraphicsContext gfx_ctx = { 0 };
   GraphicsContext_initialize (&gfx_ctx, state.window_width, state.window_height);
@@ -99,9 +92,7 @@ main ()
 			 CallbackManager_update (&cb_mgr, &args);
 		  }
 
-		GraphicsContext_prepare (&gfx_ctx);
-		GraphicsContext_draw_grid (&gfx_ctx, &state);
-		GraphicsContext_done (&gfx_ctx);
+		GraphicsContext_update (&gfx_ctx, &state);
 	 }
   
   GraphicsContext_terminate (&gfx_ctx);

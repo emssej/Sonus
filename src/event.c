@@ -4,7 +4,7 @@ void
 CallbackManager_add (CallbackManager *mgr, Callback callback)
 {
   mgr->callbacks = realloc (mgr->callbacks, sizeof (Callback)
-									 * (mgr->callbacks_size++));
+									 * (++mgr->callbacks_size));
 
   if (mgr->callbacks == NULL)
 	 {

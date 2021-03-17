@@ -9,7 +9,6 @@ typedef struct
 CallbackArgs
 {
   SDL_Event *event;
-  Uint8 **keystates;
   SonusState *state;
 } CallbackArgs;
 
