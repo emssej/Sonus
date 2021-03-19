@@ -1,7 +1,8 @@
-#include <SDL2/SDL2_framerate.h>
+#include <SDL2/SDL_ttf.h>
 
+#include "callback.h"
 #include "graphics.h"
-#include "event.h"
+#include "resources.h"
 
 void
 Callback_quit (CallbackArgs *args)
@@ -60,8 +61,8 @@ Callback_dragend (CallbackArgs *args)
 int
 main ()
 {
-  SonusState state = { 0 };
-  SonusState_initialize (&state);
+  SDL_Init (SDL_INIT_VIDEO);
+  TTF_Init ();
 
   CallbackManager cb_mgr = { 0 };
   CallbackArgs args = { 0 };
@@ -72,17 +73,29 @@ main ()
   CallbackManager_add (&cb_mgr, Callback_drag);
   CallbackManager_add (&cb_mgr, Callback_dragend);
 
+  SonusState state = { 0 };
+  SonusState_initialize (&state);
+  
   GraphicsContext gfx_ctx = { 0 };
-  GraphicsContext_initialize (&gfx_ctx, state.window_width, state.window_height);
+  GraphicsContext_initialize (&gfx_ctx, state.window_width,
+										state.window_height);
+
+  ResourceManager res_mgr = { 0 };
+  ResourceManager_initialize (&res_mgr);
+
+  Node example;
+  Node_initialize (&example, 200, 200, "Oscillator", 3, 4);
+  Node example2;
+  Node_initialize (&example2, 400, 200, "Addition", 2, 1);
+
+  SonusState_add_Node (&state, example);
+  SonusState_add_Node (&state, example2);
 
   SDL_Event event;
-  FPSmanager fps_manager;
-  SDL_initFramerate (&fps_manager);
-  SDL_setFramerate (&fps_manager, 60);
   
   while (state.running)
 	 {
-		SDL_framerateDelay (&fps_manager);
+		SonusState_update (&state);
 		
 		while (SDL_PollEvent (&event))
 		  {
@@ -92,10 +105,13 @@ main ()
 			 CallbackManager_update (&cb_mgr, &args);
 		  }
 
-		GraphicsContext_update (&gfx_ctx, &state);
+		GraphicsContext_update (&gfx_ctx, &res_mgr, &state);
 	 }
-  
+
+  ResourceManager_terminate (&res_mgr);
   GraphicsContext_terminate (&gfx_ctx);
+  
+  TTF_Quit ();
   SDL_Quit ();
   
   return 0;

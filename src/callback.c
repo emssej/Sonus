@@ -1,4 +1,4 @@
-#include "event.h"
+#include "callback.h"
 
 void
 CallbackManager_add (CallbackManager *mgr, Callback callback)

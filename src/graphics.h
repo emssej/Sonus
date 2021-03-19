@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "node.h"
+#include "resources.h"
 #include "state.h"
 #include "utilities.h"
 
@@ -12,8 +14,10 @@ GraphicsContext
   SDL_Renderer *renderer;
 } GraphicsContext;
 
-void GraphicsContext_initialize (GraphicsContext *ctx, unsigned short width,
-											unsigned short height);
-void GraphicsContext_draw_grid (GraphicsContext *ctx, SonusState *state);
-void GraphicsContext_update (GraphicsContext *ctx, SonusState *state);
+void GraphicsContext_initialize(GraphicsContext *ctx, unsigned short width,
+										  unsigned short height);
+void GraphicsContext_draw_node (GraphicsContext *ctx, ResourceManager *mgr,
+										  SonusState *state, Node *node);
+void GraphicsContext_update (GraphicsContext *ctx, ResourceManager *mgr,
+									  SonusState *state);
 void GraphicsContext_terminate (GraphicsContext *ctx);
