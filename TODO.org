@@ -1,0 +1,2 @@
+* TODO Calculate bounding boxes of each Node.
+* TODO User input---moving nodes, checking if you clicked on a node connection (or another widget).

@@ -15,7 +15,6 @@ SonusState_initialize (SonusState *state)
   state->y = 0;
   state->drag_x = 0;
   state->drag_y = 0;
-  state->zoom = 1;
 
   state->nodes_size = 0;
 }

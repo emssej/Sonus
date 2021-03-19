@@ -83,14 +83,11 @@ main ()
   ResourceManager res_mgr = { 0 };
   ResourceManager_initialize (&res_mgr);
 
-  Node example;
-  Node_initialize (&example, 200, 200, "Oscillator", 3, 4);
-  Node example2;
-  Node_initialize (&example2, 400, 200, "Addition", 2, 1);
+  Node example = { 0 };
+  Node_initialize (&example, 200, 200, "Oscillator");
 
   SonusState_add_Node (&state, example);
-  SonusState_add_Node (&state, example2);
-
+  
   SDL_Event event;
   
   while (state.running)

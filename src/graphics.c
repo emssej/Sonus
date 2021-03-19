@@ -27,7 +27,7 @@ GraphicsContext_initialize (GraphicsContext *ctx, unsigned short width,
 void
 GraphicsContext_draw_grid (GraphicsContext *ctx, SonusState *state)
 {
-  unsigned short grid_size = state->zoom * 32;
+  unsigned short grid_size = 32;
   short xx = state->x % grid_size;
   short yy = state->y % grid_size;
 
@@ -52,7 +52,7 @@ GraphicsContext_draw_coords (GraphicsContext *ctx, ResourceManager *mgr,
   sprintf (buffer, "X = %lli, Y = %lli, DRAG_X = %lli, DRAG_Y = %lli, FPS=%.2Lf",
 			  state->x, state->y, state->drag_x, state->drag_y, 1 / state->delta_time);
   
-  SDL_Color c = { 255, 255, 255, 255 };
+  SDL_Color c = { 255, 255, 255, 127 };
   SDL_Surface *s = TTF_RenderText_Blended (mgr->fonts.default_16, buffer, c);
   SDL_Texture *t = SDL_CreateTextureFromSurface (ctx->renderer, s);
   int w, h;
@@ -69,56 +69,68 @@ void
 GraphicsContext_draw_node (GraphicsContext *ctx, ResourceManager *mgr,
 									SonusState *state, Node *node)
 {
-  SDL_Color c = { 255, 255, 255, 255 };
-  SDL_Surface *s = TTF_RenderText_Blended (mgr->fonts.default_16, node->title, c);
-  SDL_Texture *t = SDL_CreateTextureFromSurface (ctx->renderer, s);
-  int w, h;
-
-  SDL_QueryTexture (t, NULL, NULL, &w, &h);
-
   long long relx = state->x + node->x;
   long long rely = state->y + node->y;
-  SDL_Rect wrect = { relx, rely, w, h };
-
-  /* Draw the title bar. */
+  int w, h;
   
-  SDL_SetRenderDrawColor(ctx->renderer, 127, 127, 127, SDL_ALPHA_OPAQUE);
-  SDL_RenderFillRect (ctx->renderer, &wrect);
-
-  SDL_RenderCopy (ctx->renderer, t, NULL, &wrect);
-
-  /* Draw the inlets. */
+  /* Draw the widgets. */
   
-  for (unsigned short i = 0; i < node->n_inlets; ++i)
+  for (size_t i = 0; i < node->widgets_size; ++i)
 	 {
-		int y = rely + i * h + h;
-		SDL_Rect rect = { relx, y, w, h };
-		SDL_SetRenderDrawColor(ctx->renderer, 100, 100, 100, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect (ctx->renderer, &rect);
+		Widget widget = node->widgets[i];
 
-		int size = h / 2;
-		SDL_Rect connection = { relx - size / 2, y + size / 2, size, size };
-		SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect (ctx->renderer, &connection);
+		switch (widget.type)
+		  {
+		  case WIDGETTYPE_TITLE:
+			 {
+				SDL_Color c = { 255, 255, 255, 255 };
+				SDL_Surface *s = TTF_RenderText_Blended (mgr->fonts.default_16,
+																	  widget.symbol, c);
+				SDL_Texture *t = SDL_CreateTextureFromSurface (ctx->renderer, s);
+
+				SDL_QueryTexture (t, NULL, NULL, &w, &h);
+
+				SDL_Rect r = { relx, i * h + rely, w, h };
+				
+				SDL_SetRenderDrawColor (ctx->renderer, 127, 127, 127,
+												SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect (ctx->renderer, &r);
+				SDL_RenderCopy (ctx->renderer, t, NULL, &r);
+
+				SDL_DestroyTexture(t);
+				SDL_FreeSurface(s);
+			 }
+			 break;
+		  case WIDGETTYPE_INLET:
+			 {
+				SDL_Rect r = { relx, i * h + rely, w, h };
+				SDL_SetRenderDrawColor (ctx->renderer, 100, 100, 100,
+												SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect (ctx->renderer, &r);
+
+				int size = h / 2;
+				SDL_Rect p = { relx - size / 2, (i * h + rely) + size / 2, size, size};
+				SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 127);
+				SDL_RenderFillRect (ctx->renderer, &p);
+			 }
+			 break;
+		  case WIDGETTYPE_OUTLET:
+			 {
+				SDL_Rect r = { relx, i * h + rely, w, h };
+				SDL_SetRenderDrawColor (ctx->renderer, 100, 100, 100,
+												SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect (ctx->renderer, &r);
+
+				int size = h / 2;
+				SDL_Rect p = { relx + w - size / 2, (i * h + rely) + size / 2, size, size};
+				SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 127);
+				SDL_RenderFillRect (ctx->renderer, &p);
+			 }
+			 break;
+		  default:
+			 break;
+		  }
 	 }
-
-  /* Draw the outlets. */
-  
-  for (unsigned short i = 0; i < node->n_outlets; ++i)
-	 {
-		int y = node->n_inlets * h + (rely + i * h + h);
-		SDL_Rect rect = { relx, y, w, h };
-		SDL_SetRenderDrawColor(ctx->renderer, 80, 80, 80, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect (ctx->renderer, &rect);
-
-		int size = h / 2;
-		SDL_Rect connection = { relx + w - size / 2, y + size / 2, size, size };
-		SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect (ctx->renderer, &connection);
-	 }
-
-  SDL_DestroyTexture(t);
-  SDL_FreeSurface(s);
 }
 
 void

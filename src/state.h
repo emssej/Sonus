@@ -19,7 +19,6 @@ SonusState
   long double delta_time;
   
   long long x, y, drag_x, drag_y;
-  double zoom;
 
   size_t nodes_size;
   Node *nodes;
