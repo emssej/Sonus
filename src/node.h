@@ -29,6 +29,9 @@ typedef struct
 Node
 {
   long long x, y;
+  int w, h;
+  _Bool dragging;
+  
   size_t widgets_size;
   Widget *widgets;
 } Node;

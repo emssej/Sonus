@@ -131,6 +131,9 @@ GraphicsContext_draw_node (GraphicsContext *ctx, ResourceManager *mgr,
 			 break;
 		  }
 	 }
+
+  node->w = w;
+  node->h = node->widgets_size * h;
 }
 
 void

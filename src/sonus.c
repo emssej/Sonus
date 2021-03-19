@@ -25,36 +25,73 @@ Callback_resize (CallbackArgs *args)
 }
 
 void
-Callback_dragstart (CallbackArgs *args)
+Callback_mousedown (CallbackArgs *args)
 {
+  /* First, we check if we click on any nodes. */
+  _Bool found = 0;
   if (args->event->type == SDL_MOUSEBUTTONDOWN &&
-		args->event->button.button == SDL_BUTTON_MIDDLE)
+		args->event->button.button == SDL_BUTTON_LEFT)
 	 {
-		args->state->dragging = 1;
-		args->state->drag_x = args->event->button.x - args->state->x;
-		args->state->drag_y = args->event->button.y - args->state->y;
+		for (size_t i = 0; i < args->state->nodes_size; ++i)
+		  {
+			 Node n = args->state->nodes[i];
+			 long long relx = n.x + args->state->x;
+			 long long rely = n.y + args->state->y;
+
+			 if (args->event->button.x > relx && args->event->button.y > rely
+				  && args->event->button.x < relx + n.w
+				  && args->event->button.y < rely + n.h)
+				{
+				  args->state->nodes[i].dragging = 1;
+				  found = 1;
+				  break;
+				}
+		  }
+
+		if (!found)
+		  {
+			 args->state->dragging = 1;
+			 args->state->drag_x = args->event->button.x - args->state->x;
+			 args->state->drag_y = args->event->button.y - args->state->y;
+		  }
 	 }
 }
 
 void
-Callback_drag (CallbackArgs *args)
+Callback_mousemotion (CallbackArgs *args)
 {
   if (args->event->type == SDL_MOUSEMOTION && args->state->dragging)
 	 {
 		args->state->x = args->event->motion.x - args->state->drag_x;
 		args->state->y = args->event->motion.y - args->state->drag_y;
 	 }
+  else if (args->event->type == SDL_MOUSEMOTION)
+	 {
+		for (size_t i = 0; i < args->state->nodes_size; ++i)
+		  {
+			 if (args->state->nodes[i].dragging)
+				{
+				  args->state->nodes[i].x = args->event->motion.x - args->state->drag_x;
+				  args->state->nodes[i].y = args->event->motion.y - args->state->drag_y;
+				}
+		  }
+	 }
+
 }
 
 void
-Callback_dragend (CallbackArgs *args)
+Callback_mouseup (CallbackArgs *args)
 {
-  if (args->event->type == SDL_MOUSEBUTTONUP &&
-		args->event->button.button == SDL_BUTTON_MIDDLE)
+  if (args->event->type == SDL_MOUSEBUTTONUP)
 	 {
 		args->state->dragging = 0;
 		args->state->drag_x = 0;
 		args->state->drag_y = 0;
+
+		for (size_t i = 0; i < args->state->nodes_size; ++i)
+		  {
+			 args->state->nodes[i].dragging = 0;
+		  }
 	 }
 }
 
@@ -69,9 +106,9 @@ main ()
 
   CallbackManager_add (&cb_mgr, Callback_quit);
   CallbackManager_add (&cb_mgr, Callback_resize);
-  CallbackManager_add (&cb_mgr, Callback_dragstart);
-  CallbackManager_add (&cb_mgr, Callback_drag);
-  CallbackManager_add (&cb_mgr, Callback_dragend);
+  CallbackManager_add (&cb_mgr, Callback_mousedown);
+  CallbackManager_add (&cb_mgr, Callback_mousemotion);
+  CallbackManager_add (&cb_mgr, Callback_mouseup);
 
   SonusState state = { 0 };
   SonusState_initialize (&state);
