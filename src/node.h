@@ -1,41 +1,35 @@
 #pragma once
 
-#include <stdlib.h>
-
 #include "utilities.h"
 
 typedef enum
 WidgetType
   {
-	 WIDGETTYPE_TITLE,
-	 WIDGETTYPE_NUMBER,
-	 WIDGETTYPE_SYMBOL,
 	 WIDGETTYPE_INLET,
-	 WIDGETTYPE_OUTLET
+	 WIDGETTYPE_OUTLET,
+	 WIDGETTYPE_NUMBER
   } WidgetType;
 
 typedef struct
 Widget
 {
   WidgetType type;
-  union
-  {
+  long long id;
+  union {
 	 long double number;
-	 char *symbol;
   };
 } Widget;
 
 typedef struct
 Node
 {
-  long long x, y;
-  int w, h;
-  _Bool dragging;
-  
   size_t widgets_size;
   Widget *widgets;
+  void (*function)(struct Node *self);
+  /* Metadata */
+  const char *title;
+  long long x, y;
 } Node;
 
-void Node_initialize (Node *node, long long x, long long y, char *title);
+void Node_execute (Node *node);
 void Node_add_Widget (Node *node, Widget widget);
-
