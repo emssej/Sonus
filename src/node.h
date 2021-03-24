@@ -15,9 +15,7 @@ Widget
 {
   WidgetType type;
   long long id;
-  union {
-	 long double number;
-  };
+  long double value;
 } Widget;
 
 typedef struct

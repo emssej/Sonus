@@ -1,4 +1,4 @@
-SRC=src/sonus.c src/node.c
+SRC=src/sonus.c src/node.c src/scene.c src/state.c src/graphics.c
 
 OBJ=$(SRC:.c=.o)
 CFLAGS=-g -Werror -Wextra -Wall `pkg-config --cflags sdl2 cairo portaudio-2.0`
